@@ -42,7 +42,6 @@ sessionSchema.methods.toJSON = function () {
 
 // before validate populate the token and the expiry date
 sessionSchema.pre("validate", function (next) {
-  console.log("presale hook", this.isNew);
   // if this is new
   if (this.isNew) {
     const randomBytes = crypto.randomBytes(32);

@@ -12,7 +12,7 @@ authRouter.post("/register", async (req, res) => {
 
     const err = validateEmailAndPassword(email, password);
 
-    if (err) {
+    if (err.error) {
       return res.status(400).json({ message: err.error });
     }
 
@@ -52,7 +52,7 @@ authRouter.post("/login", async (req, res) => {
 
     const err = validateEmailAndPassword(email, password);
 
-    if (err) {
+    if (err.error) {
       return res.status(400).json({ message: err.error });
     }
 
