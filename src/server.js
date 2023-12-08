@@ -27,6 +27,15 @@ app.use(cors());
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 
+app.use("*", (req, res) => {
+  res
+    .status(404)
+    .send(
+      '<div style="text-align: center;"><h2>These aren\'t the routes you are looking for</h2>' +
+        "<img src='https://media.giphy.com/media/3o84sF21zQYacFcl68/giphy.gif' alt='Not the droids you are looking for' /> </div>",
+    );
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server started on port ${process.env.PORT}!`);
 });
