@@ -13,6 +13,10 @@ const ProfileSchema = new Schema({
     type: String,
     default: "",
   },
+  profilePicture: {
+    type: String,
+    default: "",
+  },
   user: { type: Schema.Types.ObjectId, ref: "User" },
   links: {
     type: [Schema.Types.Mixed],

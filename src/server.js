@@ -5,6 +5,8 @@ import { authRouter } from "./routes/auth.routes.js";
 import cors from "cors";
 import { deserializeUser } from "./middlewares/deserializeUser.middleware.js";
 import { usersRouter } from "./routes/users.routes.js";
+import fileUpload from "express-fileupload";
+import fs from "fs";
 
 // This will map all the variables from .env file to process.env
 dotenv.config();
@@ -24,8 +26,22 @@ app.use(deserializeUser);
 app.use(express.json());
 app.use(cors());
 
+app.use(fileUpload());
+
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
+
+// set /static/public as a static folder for everyone
+app.use("/static/public", express.static("static/public"));
+
+// if folder /static/public is not created yet, create it
+if (!fs.existsSync("./static")) {
+  fs.mkdirSync("./static");
+}
+
+if (!fs.existsSync("./static/public")) {
+  fs.mkdirSync("./static/public");
+}
 
 app.use("*", (req, res) => {
   res

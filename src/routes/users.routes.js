@@ -4,6 +4,9 @@ import {
   requireUser,
 } from "../middlewares/deserializeUser.middleware.js";
 import { ProfileModel } from "../models/profile.model.js";
+import { resizeImageCenterCover } from "../image.utils.js";
+// import promise fs
+import { promises as fs } from "fs";
 
 export const usersRouter = Router();
 
@@ -45,7 +48,21 @@ usersRouter.patch("/profile", requireUser, async (req, res) => {
 
   const { firstName, lastName, email, links } = req.body;
 
+  //
+  const picture = req.files.picture;
+
+  const resized = await resizeImageCenterCover(picture, 512, 512);
+
+  const picturePath = `./static/public/${picture.md5}.webp`;
+
+  // save the resized image to the path
+  const saved = await fs.writeFile(picturePath, resized);
+
   const profile = await ProfileModel.findOne({ user: user._id });
+
+  const imageExternalURl = `${req.protocol}://${req.get(
+    "host",
+  )}/static/public/${picture.md5}.webp`;
 
   if (!profile) {
     return res.status(404).json({ message: "Profile not found" });
@@ -65,6 +82,18 @@ usersRouter.patch("/profile", requireUser, async (req, res) => {
 
   if (links) {
     profile.links = links;
+  }
+
+  if (picture) {
+    const oldUrl = profile.profilePicture;
+
+    const filePath = oldUrl ? oldUrl.split("/").slice(-1)[0] : "";
+
+    if (filePath && oldUrl !== imageExternalURl)
+      // user can upload the same image twice
+      await fs.unlink(`./static/public/${filePath}`);
+
+    profile.profilePicture = imageExternalURl;
   }
 
   try {
