@@ -49,20 +49,22 @@ usersRouter.patch("/profile", requireUser, async (req, res) => {
   const { firstName, lastName, email, links } = req.body;
 
   //
-  const picture = req.files.picture;
+  const picture = req.files?.picture;
 
-  const resized = await resizeImageCenterCover(picture, 512, 512);
+  let imageExternalURl;
+  if (picture) {
+    const resized = await resizeImageCenterCover(picture, 512, 512);
 
-  const picturePath = `./static/public/${picture.md5}.webp`;
+    const picturePath = `./static/public/${picture.md5}.webp`;
 
-  // save the resized image to the path
-  const saved = await fs.writeFile(picturePath, resized);
+    // save the resized image to the path
+    await fs.writeFile(picturePath, resized);
 
+    imageExternalURl = `${req.protocol}://${req.get("host")}/static/public/${
+      picture.md5
+    }.webp`;
+  }
   const profile = await ProfileModel.findOne({ user: user._id });
-
-  const imageExternalURl = `${req.protocol}://${req.get(
-    "host",
-  )}/static/public/${picture.md5}.webp`;
 
   if (!profile) {
     return res.status(404).json({ message: "Profile not found" });
